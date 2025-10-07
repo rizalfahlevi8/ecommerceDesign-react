@@ -52,6 +52,13 @@ function Navbar({
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
           </li>
+          {user && (
+            <li>
+              <Link to="/history" className="nav-link">
+                📜 Riwayat Pesanan
+              </Link>
+            </li>
+          )}
           <li>
             {user ? (
               <div

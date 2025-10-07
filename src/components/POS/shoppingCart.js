@@ -26,7 +26,7 @@ function ShoppingCart({ cart, onRemoveItem, onCheckout, user }) {
   // Simulasi pembayaran
   const paymentInfo = {
     transfer: "Silakan transfer ke rekening BCA 1234567890 a/n PT. Toko Bangunan",
-    ewallet: "QRIS: [scan gambar di toko] atau kirim ke OVO/Gopay/Dana: 0812-xxxx-xxxx",
+    ewallet: "QRIS: [scan gambar di toko] atau kirim ke OVO/Gopay/Dana: 0812-1234-4445",
     cod: "Bayar di tempat (Cash on Delivery)",
   };
 

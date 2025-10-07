@@ -7,6 +7,7 @@ import Contact from "./components/landingPage/contact";
 import ProductCatalog from "./components/POS/productCatalog";
 import ShoppingCart from "./components/POS/shoppingCart";
 import PurchaseSuccess from "./components/POS/PurchaseSuccess";
+import OrderHistory from "./components/POS/OrderHistory";
 import Footer from "./components/footer";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
@@ -69,7 +70,7 @@ const initialProducts = [
   },
   {
     id: 6,
-    label: "Semen Gresik",
+    label: "Semen Tiga Roda",
     name: "Semen 40kg",
     category: "Semen",
     price: 62000,
@@ -131,11 +132,74 @@ const initialProducts = [
     image: "/images/pasir-hitam.jpg",
     totalSold: 0,
   },
+   {
+    id: 13,
+    label: "Semen Tiga Roda",
+    name: "Semen 30kg",
+    category: "Semen",
+    price: 59000,
+    stock: 50,
+    image: "/images/semen-tigaroda.jpg",
+    discount: 0.07,
+    totalSold: 0,
+  },
+    {
+    id: 14,
+    label: "Pipa PVC Vinilon",
+    name: "Pipa PVC 4 Inch",
+    category: "Pipa",
+    price: 35000,
+    stock: 50,
+    image: "/images/pipa-pvc.jpg",
+    totalSold: 0,
+  },
+  {
+    id: 15,
+    label: "Pasir Hitam Bangunan",
+    name: "Pasir Hitam 1/2 Truk",
+    category: "Pasir",
+    price: 450000,
+    stock: 5,
+    image: "/images/pasir-hitam.jpg",
+    totalSold: 0,
+  },
+  {
+    id: 16,
+    label: "Semen Tiga Roda",
+    name: "Semen 20kg",
+    category: "Semen",
+    price: 57000,
+    stock: 20,
+    image: "/images/semen-tigaroda.jpg",
+    discount: 0.07,
+    totalSold: 0,
+  },
+    {
+    id: 17,
+    label: "Pasir Hitam Bangunan",
+    name: "Pasir Hitam 2 Truk",
+    category: "Pasir",
+    price: 1300000,
+    stock: 5,
+    image: "/images/pasir-hitam.jpg",
+    totalSold: 0,
+  },
 ];
+
+const STORAGE_KEY = "products";
 
 function AppContent() {
   const navigate = useNavigate();
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : initialProducts;
+  });
+
+  // Simpan ke localStorage setiap products berubah
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+  }, [products]);
+
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
@@ -143,7 +207,6 @@ function AppContent() {
   const [lastOrder, setLastOrder] = useState(null);
   const [pendingCheckout, setPendingCheckout] = useState(null);
 
-  // Cek login dari localStorage setiap reload
   useEffect(() => {
     const storedUser = localStorage.getItem("logged_in_user");
     if (storedUser) setUser(JSON.parse(storedUser));
@@ -153,7 +216,6 @@ function AppContent() {
     setUser(userObj);
     localStorage.setItem("logged_in_user", JSON.stringify(userObj));
     setShowLogin(false);
-    // Jika login karena mau checkout, proses checkout & redirect
     if (pendingCheckout) {
       handleCheckout(pendingCheckout, true);
       setPendingCheckout(null);
@@ -252,19 +314,31 @@ function AppContent() {
     );
     const total = subtotal - totalDiscount;
 
-    setLastOrder({
+    const orderData = {
       items: orderItems,
       paymentMethod,
       shippingAddress,
       total,
-    });
-    setCart([]); // reset keranjang
+      date: new Date().toISOString()
+    };
+
+    setLastOrder(orderData);
+    setCart([]);
     setProducts(prevProducts =>
       prevProducts.map(prod => ({
         ...prod,
         totalSold: 0
       }))
     );
+    // Simpan history order per user
+    if ((user || force) && (user?.username || pendingCheckout)) {
+      const username = user?.username || pendingCheckout?.username;
+      if (username) {
+        const key = `orders_${username}`;
+        const prevOrders = JSON.parse(localStorage.getItem(key) || "[]");
+        localStorage.setItem(key, JSON.stringify([orderData, ...prevOrders]));
+      }
+    }
     if (user || force) {
       navigate("/success");
     }
@@ -327,6 +401,10 @@ function AppContent() {
             path="/success"
             element={<PurchaseSuccess order={lastOrder} />}
           />
+          <Route
+            path="/history"
+            element={<OrderHistory user={user} />}
+          />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
@@ -338,7 +416,9 @@ function AppContent() {
 export default function App() {
   return (
     <Router>
-      <AppContent />
+      <div className="app-wrapper">
+        <AppContent />
+      </div>
     </Router>
   );
 }
