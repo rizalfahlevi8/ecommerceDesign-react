@@ -1,0 +1,85 @@
+.custom-alert-overlay {
+  position: fixed;
+  z-index: 1100;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.custom-alert-modal {
+  background: #fff;
+  border-radius: 14px;
+  padding: 2.5rem 2rem 1.5rem 2rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+  text-align: center;
+  min-width: 320px;
+  max-width: 92vw;
+  position: relative;
+  animation: popIn 0.15s;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.95); opacity: 0.5; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.custom-alert-close {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  border: none;
+  background: transparent;
+  font-size: 1.4rem;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.18s;
+}
+.custom-alert-close:hover {
+  color: #ef4444;
+}
+
+.custom-alert-modal h2 {
+  margin-bottom: 0.8rem;
+  color: #1d4ed8;
+  font-size: 1.25rem;
+}
+.custom-alert-message {
+  margin-bottom: 1.5rem;
+  font-size: 1.08rem;
+}
+
+.custom-alert-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+.btn-confirm {
+  background: #18a100;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 22px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.btn-confirm:hover {
+  background: #1dbf00ff;
+}
+
+.btn-cancel {
+  background: #e5e7eb;
+  color: #374151;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 22px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.btn-cancel:hover {
+  background: #cbd5e1;
+}

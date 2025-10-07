@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
+import CustomAlert from "../Alert"; // Pastikan path sesuai struktur project Anda
 
 function ShoppingCart({ cart, onRemoveItem, onCheckout, user }) {
   const [shippingAddress, setShippingAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [showCheckoutAlert, setShowCheckoutAlert] = useState(false);
 
   const totalItems = cart.reduce((acc, item) => acc + item.qty, 0);
 
@@ -28,6 +30,15 @@ function ShoppingCart({ cart, onRemoveItem, onCheckout, user }) {
     transfer: "Silakan transfer ke rekening BCA 1234567890 a/n PT. Toko Bangunan",
     ewallet: "QRIS: [scan gambar di toko] atau kirim ke OVO/Gopay/Dana: 0812-1234-4445",
     cod: "Bayar di tempat (Cash on Delivery)",
+  };
+
+  // Handler untuk konfirmasi checkout
+  const handleCheckoutConfirm = () => {
+    setShowCheckoutAlert(false);
+    onCheckout({
+      shippingAddress,
+      paymentMethod
+    });
   };
 
   return (
@@ -220,18 +231,20 @@ function ShoppingCart({ cart, onRemoveItem, onCheckout, user }) {
                 letterSpacing: ".04em"
               }}
               disabled={!shippingAddress || !paymentMethod}
-              onClick={() => {
-                if (window.confirm("Apakah anda yakin ingin checkout?")) {
-                  onCheckout({
-                    shippingAddress,
-                    paymentMethod
-                  });
-                  // Redirect akan dilakukan oleh App.js, jangan navigate di sini!
-                }
-              }}
+              onClick={() => setShowCheckoutAlert(true)}
             >
               Checkout{!user && " (Login Dulu)"}
             </button>
+            {/* Alert konfirmasi checkout */}
+            <CustomAlert
+              show={showCheckoutAlert}
+              title="Konfirmasi Checkout"
+              message="Apakah anda yakin ingin checkout?"
+              confirmText="Ya"
+              cancelText="Batal"
+              onConfirm={handleCheckoutConfirm}
+              onCancel={() => setShowCheckoutAlert(false)}
+            />
           </div>
         )}
       </div>

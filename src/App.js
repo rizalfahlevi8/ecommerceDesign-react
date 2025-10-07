@@ -11,6 +11,7 @@ import OrderHistory from "./components/POS/OrderHistory";
 import Footer from "./components/footer";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
+import CustomAlert from "./components/Alert";
 import './App.css';
 
 const initialProducts = [
@@ -195,7 +196,6 @@ function AppContent() {
     return stored ? JSON.parse(stored) : initialProducts;
   });
 
-  // Simpan ke localStorage setiap products berubah
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
   }, [products]);
@@ -206,6 +206,7 @@ function AppContent() {
   const [showRegister, setShowRegister] = useState(false);
   const [lastOrder, setLastOrder] = useState(null);
   const [pendingCheckout, setPendingCheckout] = useState(null);
+  const [showLogoutAlert, setShowLogoutAlert] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("logged_in_user");
@@ -229,12 +230,22 @@ function AppContent() {
     setShowRegister(false);
   };
 
-  const handleLogout = () => {
-    setUser(null);
-    localStorage.removeItem("logged_in_user");
+  // Ganti jadi buka alert
+  const handleLogoutClick = () => {
+    setShowLogoutAlert(true);
   };
 
-  // Tambahkan ke keranjang, kurangi stok, tambah totalSold
+  const confirmLogout = () => {
+    setShowLogoutAlert(false);
+    setUser(null);
+    localStorage.removeItem("logged_in_user");
+    navigate("/");
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutAlert(false);
+  };
+
   const handleAddToCart = (product) => {
     setProducts((prevProducts) =>
       prevProducts.map((p) => {
@@ -259,7 +270,6 @@ function AppContent() {
     });
   };
 
-  // Hapus dari keranjang, kembalikan stok, kurangi totalSold
   const handleRemoveItem = (productId) => {
     const itemInCart = cart.find((item) => item.product.id === productId);
     if (!itemInCart) return;
@@ -287,8 +297,6 @@ function AppContent() {
   const getProductData = (id) => products.find((p) => p.id === id);
   const cartCount = cart.reduce((acc, item) => acc + item.qty, 0);
 
-  // Checkout: reset cart dan totalSold ke 0
-  // Tambah parameter force untuk bypass check user dari handleLogin
   const handleCheckout = ({ shippingAddress, paymentMethod }, force = false) => {
     if (!user && !force) {
       setPendingCheckout({ shippingAddress, paymentMethod });
@@ -350,7 +358,7 @@ function AppContent() {
         cartCount={cartCount}
         user={user}
         onLoginClick={() => setShowLogin(true)}
-        onLogout={handleLogout}
+        onLogout={handleLogoutClick}
         onRegisterClick={() => setShowRegister(true)}
       />
       <Login
@@ -366,6 +374,15 @@ function AppContent() {
         show={showRegister}
         onClose={() => setShowRegister(false)}
         onRegister={handleRegister}
+      />
+      <CustomAlert
+        show={showLogoutAlert}
+        title="Konfirmasi Logout"
+        message="Apakah Anda yakin ingin logout?"
+        confirmText="Logout"
+        cancelText="Batal"
+        onConfirm={confirmLogout}
+        onCancel={cancelLogout}
       />
       <div className="main-content">
         <Routes>
