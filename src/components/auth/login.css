@@ -1,0 +1,106 @@
+/* Gradient Background */
+.login-bg {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1976d2 30%, #48b1f7 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Card Login */
+.login-card {
+  background: white;
+  padding: 2.5rem 2rem 2rem 2rem;
+  border-radius: 16px;
+  width: 380px;
+  box-shadow: 0 6px 24px rgba(25, 118, 210, 0.14), 0 1.5px 5px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Header */
+.login-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.login-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.login-header h2 {
+  font-weight: 700;
+  color: #1976d2;
+  margin-bottom: 0.2rem;
+}
+.login-subtitle {
+  color: #4d7eb7;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Form */
+.login-form {
+  width: 100%;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #1976d2;
+  font-weight: 500;
+  letter-spacing: 0.02rem;
+}
+.login-form input {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #dedede;
+  background: #f6f8fc;
+  transition: border-color 0.2s;
+  outline: none;
+}
+.login-form input:focus {
+  border-color: #1976d2;
+  background: #e3f0fc;
+}
+
+/* Button */
+.btn-login {
+  width: 100%;
+  padding: 0.85rem;
+  background: linear-gradient(90deg, #1976d2 60%, #48b1f7 100%);
+  color: white;
+  border: none;
+  font-size: 1.05rem;
+  font-weight: 600;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+  box-shadow: 0 2px 6px rgba(25, 118, 210, 0.10);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-login:hover, .btn-login:focus {
+  background: linear-gradient(90deg, #1561b1 60%, #3892d6 100%);
+  transform: translateY(-2px) scale(1.01);
+}
+
+/* Error */
+.error {
+  color: #d32f2f;
+  background: #ffeaea;
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-size: 0.95rem;
+  border: 1px solid #fad2d2;
+  box-shadow: 0 1px 2px rgba(211,47,47,0.06);
+}
