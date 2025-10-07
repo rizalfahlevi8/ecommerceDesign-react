@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-function ShoppingCart({ cart, onRemoveItem, onCheckout }) {
-  const navigate = useNavigate();
+function ShoppingCart({ cart, onRemoveItem, onCheckout, user }) {
   const [shippingAddress, setShippingAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
 
@@ -227,11 +226,11 @@ function ShoppingCart({ cart, onRemoveItem, onCheckout }) {
                     shippingAddress,
                     paymentMethod
                   });
-                  navigate("/success");
+                  // Redirect akan dilakukan oleh App.js, jangan navigate di sini!
                 }
               }}
             >
-              Checkout
+              Checkout{!user && " (Login Dulu)"}
             </button>
           </div>
         )}
@@ -268,6 +267,7 @@ ShoppingCart.propTypes = {
   ).isRequired,
   onRemoveItem: PropTypes.func.isRequired,
   onCheckout: PropTypes.func.isRequired,
+  user: PropTypes.object,
 };
 
 export default ShoppingCart;

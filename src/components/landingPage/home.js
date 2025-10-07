@@ -28,7 +28,7 @@ function Home() {
               <span className="feature-icon">🚚</span>
               <h3 className="feature-title">Pengiriman Cepat</h3>
               <p className="feature-description">
-                Layanan pengiriman ke seluruh Indonesia dengan sistem logistik terpercaya
+                Layanan pengiriman ke seluruh Jember dengan sistem logistik terpercaya
               </p>
             </div>
             

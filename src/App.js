@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Navbar from "./components/navbar";
 import Home from "./components/landingPage/home";
 import About from "./components/landingPage/about";
@@ -9,6 +9,7 @@ import ShoppingCart from "./components/POS/shoppingCart";
 import PurchaseSuccess from "./components/POS/PurchaseSuccess";
 import Footer from "./components/footer";
 import Login from "./components/auth/Login";
+import Register from "./components/auth/Register";
 import './App.css';
 
 const initialProducts = [
@@ -132,11 +133,44 @@ const initialProducts = [
   },
 ];
 
-function App() {
+function AppContent() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState(initialProducts);
   const [cart, setCart] = useState([]);
   const [user, setUser] = useState(null);
+  const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
   const [lastOrder, setLastOrder] = useState(null);
+  const [pendingCheckout, setPendingCheckout] = useState(null);
+
+  // Cek login dari localStorage setiap reload
+  useEffect(() => {
+    const storedUser = localStorage.getItem("logged_in_user");
+    if (storedUser) setUser(JSON.parse(storedUser));
+  }, []);
+
+  const handleLogin = (userObj) => {
+    setUser(userObj);
+    localStorage.setItem("logged_in_user", JSON.stringify(userObj));
+    setShowLogin(false);
+    // Jika login karena mau checkout, proses checkout & redirect
+    if (pendingCheckout) {
+      handleCheckout(pendingCheckout, true);
+      setPendingCheckout(null);
+      navigate("/success");
+    }
+  };
+
+  const handleRegister = (userObj) => {
+    setUser(userObj);
+    localStorage.setItem("logged_in_user", JSON.stringify(userObj));
+    setShowRegister(false);
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem("logged_in_user");
+  };
 
   // Tambahkan ke keranjang, kurangi stok, tambah totalSold
   const handleAddToCart = (product) => {
@@ -192,7 +226,14 @@ function App() {
   const cartCount = cart.reduce((acc, item) => acc + item.qty, 0);
 
   // Checkout: reset cart dan totalSold ke 0
-  const handleCheckout = ({ shippingAddress, paymentMethod }) => {
+  // Tambah parameter force untuk bypass check user dari handleLogin
+  const handleCheckout = ({ shippingAddress, paymentMethod }, force = false) => {
+    if (!user && !force) {
+      setPendingCheckout({ shippingAddress, paymentMethod });
+      setShowLogin(true);
+      return;
+    }
+
     const orderItems = cart.map(item => ({
       name: item.product.name,
       qty: item.qty,
@@ -218,69 +259,86 @@ function App() {
       total,
     });
     setCart([]); // reset keranjang
-    // RESET totalSold ke 0 setelah checkout
     setProducts(prevProducts =>
       prevProducts.map(prod => ({
         ...prod,
         totalSold: 0
       }))
     );
+    if (user || force) {
+      navigate("/success");
+    }
   };
 
-  if (!user) {
-    return (
-      <Router>
-        <Routes>
-          <Route path="*" element={<Login onLogin={setUser} />} />
-        </Routes>
-      </Router>
-    );
-  }
-
   return (
-    <Router>
-      <div className="App">
-        <Navbar cartCount={cartCount} user={user} />
-        <div className="main-content">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route
-              path="/catalog"
-              element={
-                <ProductCatalog
-                  products={products}
-                  onAddToCart={handleAddToCart}
-                  getProductData={getProductData}
-                  cartCount={cartCount}
-                />
-              }
-            />
-            <Route
-              path="/cart"
-              element={
-                <ShoppingCart
-                  cart={cart.map((item) => ({
-                    ...item,
-                    product: getProductData(item.product.id),
-                  }))}
-                  onRemoveItem={handleRemoveItem}
-                  onCheckout={handleCheckout}
-                />
-              }
-            />
-            <Route
-              path="/success"
-              element={<PurchaseSuccess order={lastOrder} />}
-            />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </div>
-        <Footer />
+    <>
+      <Navbar
+        cartCount={cartCount}
+        user={user}
+        onLoginClick={() => setShowLogin(true)}
+        onLogout={handleLogout}
+        onRegisterClick={() => setShowRegister(true)}
+      />
+      <Login
+        show={showLogin}
+        onClose={() => setShowLogin(false)}
+        onLogin={handleLogin}
+        onRegisterClick={() => {
+          setShowLogin(false);
+          setShowRegister(true);
+        }}
+      />
+      <Register
+        show={showRegister}
+        onClose={() => setShowRegister(false)}
+        onRegister={handleRegister}
+      />
+      <div className="main-content">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route
+            path="/catalog"
+            element={
+              <ProductCatalog
+                products={products}
+                onAddToCart={handleAddToCart}
+                getProductData={getProductData}
+                cartCount={cartCount}
+              />
+            }
+          />
+          <Route
+            path="/cart"
+            element={
+              <ShoppingCart
+                cart={cart.map((item) => ({
+                  ...item,
+                  product: getProductData(item.product.id),
+                }))}
+                onRemoveItem={handleRemoveItem}
+                onCheckout={handleCheckout}
+                user={user}
+              />
+            }
+          />
+          <Route
+            path="/success"
+            element={<PurchaseSuccess order={lastOrder} />}
+          />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
       </div>
-    </Router>
+      <Footer />
+    </>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
+  );
+}

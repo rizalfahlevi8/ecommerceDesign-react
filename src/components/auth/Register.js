@@ -1,27 +1,38 @@
 import React, { useState } from "react";
 import "./auth.css";
 
-function Login({ show, onClose, onLogin, onRegisterClick }) {
+function Register({ show, onClose, onRegister }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   if (!show) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const users = JSON.parse(localStorage.getItem("registered_users") || "[]");
-    const found = users.find(
-      (u) => u.username === username && u.password === password
-    );
-    if (found) {
-      onLogin({ username: found.username });
-      setUsername("");
-      setPassword("");
-      setError("");
-    } else {
-      setError("Username atau password salah.");
+    if (!username || !password) {
+      setError("Semua field wajib diisi.");
+      return;
     }
+    if (password !== confirm) {
+      setError("Password tidak sama.");
+      return;
+    }
+    let users = JSON.parse(localStorage.getItem("registered_users") || "[]");
+    if (users.find(u => u.username === username)) {
+      setError("Username sudah terdaftar.");
+      return;
+    }
+    users.push({ username, password });
+    localStorage.setItem("registered_users", JSON.stringify(users));
+    setSuccess(true);
+    setError("");
+    setTimeout(() => {
+      onRegister({ username });
+      setUsername(""); setPassword(""); setConfirm(""); setSuccess(false);
+    }, 700);
   };
 
   return (
@@ -43,14 +54,14 @@ function Login({ show, onClose, onLogin, onRegisterClick }) {
       >
         <div className="login-header">
           <span className="login-icon">🏗️</span>
-          <h2>Toko Bangunan</h2>
-          <p className="login-subtitle">Silakan masuk ke akun Anda</p>
+          <h2>Daftar Akun</h2>
+          <p className="login-subtitle">Buat akun baru untuk belanja</p>
         </div>
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="reg-username">Username</label>
             <input
-              id="username"
+              id="reg-username"
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -61,20 +72,33 @@ function Login({ show, onClose, onLogin, onRegisterClick }) {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="reg-password">Password</label>
             <input
-              id="password"
+              id="reg-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              autoComplete="current-password"
+              autoComplete="new-password"
               placeholder="Masukkan password"
             />
           </div>
+          <div className="form-group">
+            <label htmlFor="reg-confirm">Konfirmasi Password</label>
+            <input
+              id="reg-confirm"
+              type="password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              required
+              autoComplete="new-password"
+              placeholder="Ulangi password"
+            />
+          </div>
           {error && <div className="error">{error}</div>}
+          {success && <div className="error" style={{ background: "#e7ffea", color: "#388e3c", borderColor: "#a5d6a7" }}>Pendaftaran berhasil! Login otomatis...</div>}
           <button type="submit" className="btn-login">
-            Login
+            Register
           </button>
           <button
             type="button"
@@ -96,27 +120,9 @@ function Login({ show, onClose, onLogin, onRegisterClick }) {
             Batal
           </button>
         </form>
-        <div style={{ marginTop: 18, textAlign: "center" }}>
-          <span style={{ color: "#555", fontSize: 14 }}>
-            Belum punya akun?{" "}
-            <button
-              onClick={onRegisterClick}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#1976d2",
-                textDecoration: "underline",
-                cursor: "pointer",
-                fontWeight: "bold"
-              }}
-            >
-              Daftar
-            </button>
-          </span>
-        </div>
       </div>
     </div>
   );
 }
 
-export default Login;
+export default Register;
